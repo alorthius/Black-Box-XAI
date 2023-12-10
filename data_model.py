@@ -5,6 +5,9 @@ import numpy as np
 
 from matplotlib import pyplot as plt
 
+plt.style.use('seaborn-v0_8')
+plt.rcParams["grid.linestyle"] = "--"
+
 
 class DataModel:
 
@@ -52,6 +55,7 @@ class DataModel:
     def plot_tdp(self, feature: str):
         grid, tdp = self.true_dependence(feature)
         plt.plot(grid, tdp, color="blue", lw=1.5, ls="-.")
+        plt.ylim([np.min(self.y), np.max(self.y)])
         plt.title("True Dependence")
         plt.xlabel(f"{feature}")
         plt.ylabel("$y$")
