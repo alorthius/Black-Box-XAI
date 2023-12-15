@@ -48,17 +48,47 @@ class DataModel:
 
         return grid_points, tdp
 
+    def total_dependence(self, feature: str, ml_model) -> (np.ndarray, np.ndarray, np.ndarray):
+        grid_points = np.linspace(np.min(self.X[feature]), np.max(self.X[feature]), self.N)
+        tdp = np.zeros(len(grid_points))
+
+        for i, value in enumerate(grid_points):
+            X_copy = self.X.copy()
+            X_copy[feature] = value
+
+            predictions = ml_model.predict(X_copy)
+            tdp[i] = np.mean(predictions)
+
+        return grid_points, tdp
+
     def true_predictions(self, feature: str, X: pd.DataFrame):
         # Overload this
         return self.calculate_y(X)
 
-    def plot_tdp(self, feature: str):
+    def plot_true_dp(self, feature: str, to_show: bool = True, alpha: float = 1):
         grid, tdp = self.true_dependence(feature)
-        plt.plot(grid, tdp, color="blue", lw=1.5, ls="-.")
+        plt.plot(grid, tdp, color="blue", lw=1.5, ls="-.", alpha=alpha, label="True Dependence")
         plt.ylim([np.min(self.y), np.max(self.y)])
-        plt.title("True Dependence")
         plt.xlabel(f"{feature}")
         plt.ylabel("$y$")
+        if to_show:
+            plt.show()
+
+    def plot_total_dp(self, feature: str, ml_model, to_show: bool = True, alpha: float = 1):
+        grid, tdp = self.total_dependence(feature, ml_model)
+        plt.plot(grid, tdp, color="green", lw=1.5, ls="-.", alpha=alpha, label="Total Dependence")
+        plt.ylim([np.min(self.y), np.max(self.y)])
+        plt.xlabel(f"{feature}")
+        plt.ylabel("$\hat y$")
+        if to_show:
+            plt.show()
+
+    def plot_true_and_total_dp(self, feature: str, ml_model):
+        self.plot_total_dp(feature, ml_model, to_show=False)
+        self.plot_true_dp(feature, to_show=False, alpha=0.6)
+
+        plt.title(feature)
+        plt.legend()
         plt.show()
 
     def __str__(self) -> str:
